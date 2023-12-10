@@ -2,6 +2,10 @@ use args::ArchBakArgs;
 use clap::Parser;
 
 mod args;
+mod config;
+mod files;
+mod pacman;
+
 use args::*;
 fn main() {
     let args = ArchBakArgs::parse();
@@ -9,61 +13,35 @@ fn main() {
         Entity::Pacman(pacman_cmd) => match pacman_cmd.options {
             PacmanCommandOptions::Backup(opts) => match opts {
                 PackageBackupCommand { options } => match options {
-                    PackageBackup::Explicit => {
-                        println!(" explicit backup")
-                    }
-                    PackageBackup::Foreign => {
-                        println!(" foreign backup ")
-                    }
-                    PackageBackup::All => {
-                        println!(" all backup")
-                    }
+                    PackageBackup::Explicit => pacman::backup_explicit(),
+                    PackageBackup::Foreign => pacman::backup_foreign(),
+                    PackageBackup::All => pacman::backup_all(),
                 },
             },
-            PacmanCommandOptions::Restore(opts) => match opts {
-                PackageRestoreCommand { options } => match options {
-                    PackageRestore::Explicit => {
-                        println!("explicit restore")
-                    }
-                    PackageRestore::Foreign => {
-                        println!("foregin restore")
-                    }
-                    PackageRestore::All => {
-                        println!("all restore")
-                    }
+            PacmanCommandOptions::Install(opts) => match opts {
+                PackageInstallCommand { options } => match options {
+                    PackageRestore::Explicit => pacman::install_explicit(),
+                    PackageRestore::Foreign => pacman::install_foreign(),
+                    PackageRestore::All => pacman::install_all(),
                 },
             },
             PacmanCommandOptions::Show(opts) => match opts {
                 PackageShowCommand { options } => match options {
-                    PackageShow::Explicit => {
-                        println!("explicit show")
-                    }
-                    PackageShow::Foreign => {
-                        println!("foregin show")
-                    }
-                    PackageShow::All => {
-                        println!("show all packages ")
-                    }
+                    PackageShow::Explicit => pacman::show_explicit(),
+                    PackageShow::Foreign => pacman::show_foreign(),
+                    PackageShow::All => pacman::show_all(),
                 },
             },
         },
         Entity::Files(files_cmd) => match files_cmd.options {
-            FileCommandOptions::Add(FileAddCommand { file }) => {
-                println!("{:?} add file", file)
-            }
-            FileCommandOptions::Remove(FileRemoveCommand { file }) => {
-                println!("{:?} remove file", file)
-            }
-            FileCommandOptions::Backup(_) => println!("backup files"),
-            FileCommandOptions::Show(FileShowCommand { file }) => {
-                println!("{:?} show file", file)
-            }
-            FileCommandOptions::ShowAll(_) => println!("show all files"),
-            FileCommandOptions::RestoreAll(_) => {
-                println!("restore all files")
-            }
+            FileCommandOptions::Add(FileAddCommand { file }) => files::add(file.as_str()),
+            FileCommandOptions::Remove(FileRemoveCommand { file }) => files::remove(file.as_str()),
+            FileCommandOptions::Show(FileShowCommand { file }) => files::show(file.as_str()),
+            FileCommandOptions::ShowAll(_) => files::show_all(),
+            FileCommandOptions::RestoreAll(_) => files::restore_all(),
+            FileCommandOptions::Backup(_) => files::backup(),
             FileCommandOptions::Restore(FileRestoreCommand { file }) => {
-                println!("{:?} restore file", file)
+                files::restore(file.as_str())
             }
         },
     }

@@ -3,7 +3,7 @@ use clap::{Args, Parser, Subcommand};
 #[derive(Parser, Debug)]
 #[clap(
     author = "Suyash Singh",
-    version,
+    version = "0.1.0",
     about = "Utility to backup and restore configuration files and packages to be installed"
 )]
 pub struct ArchBakArgs {
@@ -27,7 +27,7 @@ pub struct PacmanCommand {
 pub enum PacmanCommandOptions {
     Backup(PackageBackupCommand),
     Show(PackageShowCommand),
-    Restore(PackageRestoreCommand),
+    Install(PackageInstallCommand),
 }
 
 #[derive(Args, Debug)]
@@ -37,15 +37,15 @@ pub struct PackageBackupCommand {
 }
 
 #[derive(Args, Debug)]
-pub struct PackageShowCommand {
+pub struct PackageInstallCommand {
     #[clap(subcommand)]
-    pub options: PackageShow,
+    pub options: PackageRestore,
 }
 
 #[derive(Args, Debug)]
-pub struct PackageRestoreCommand {
+pub struct PackageShowCommand {
     #[clap(subcommand)]
-    pub options: PackageRestore,
+    pub options: PackageShow,
 }
 
 #[derive(Subcommand, Debug)]
