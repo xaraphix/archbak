@@ -25,43 +25,6 @@ pub fn backup_all() {
     }
 }
 
-pub fn show_explicit() {
-    let output = Command::new("pacman")
-        .arg("-Qent")
-        .output()
-        .expect("failed to execute process");
-
-    match output.status.code() {
-        Some(0) => {
-            println!();
-            println!("{}", "Explicit Packages".green());
-            println!("{}", "================".green());
-            println!("{:?}", get_packages(false));
-        }
-
-        Some(_) => {}
-        None => {}
-    }
-}
-
-pub fn show_foreign() {
-    let output = Command::new("pacman")
-        .arg("-Qm")
-        .output()
-        .expect("failed to execute process");
-
-    match output.status.code() {
-        Some(0) => {
-            println!();
-            println!("{}", "Foreign Packages".red());
-            println!("{}", "================".red());
-            println!("{:?}", get_packages(true));
-        }
-        Some(_) => {}
-        None => {}
-    }
-}
-
 fn get_packages(foreign: bool) -> Vec<Package> {
     let output = match foreign {
         true => Command::new("pacman")
@@ -100,12 +63,7 @@ fn get_packages(foreign: bool) -> Vec<Package> {
     result
 }
 
-pub fn show_all() {
-    show_explicit();
-    show_foreign();
-}
-
-pub fn install_explicit() {
+pub fn show_explicit() {
     let config = config::get_config();
     let packages: Vec<&str> = config
         .packages
@@ -121,7 +79,7 @@ pub fn install_explicit() {
     println!("{}", packages.join(" "));
 }
 
-pub fn install_foreign() {
+pub fn show_foreign() {
     {
         let config = config::get_config();
         let packages: Vec<&str> = config
@@ -139,7 +97,7 @@ pub fn install_foreign() {
     }
 }
 
-pub fn install_all() {
-    install_explicit();
-    install_foreign();
+pub fn show_all() {
+    show_explicit();
+    show_foreign();
 }

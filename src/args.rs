@@ -15,6 +15,7 @@ pub struct ArchBakArgs {
 pub enum Entity {
     Pacman(PacmanCommand),
     Files(FilesCommand),
+    Sync,
 }
 
 #[derive(Args, Debug)]
@@ -27,7 +28,6 @@ pub struct PacmanCommand {
 pub enum PacmanCommandOptions {
     Backup(PackageBackupCommand),
     Show(PackageShowCommand),
-    Install(PackageInstallCommand),
 }
 
 #[derive(Args, Debug)]
@@ -79,8 +79,8 @@ pub struct FilesCommand {
 pub enum FileCommandOptions {
     Add(FileAddCommand),
     Remove(FileRemoveCommand),
+    RemoveAll(FileRemoveAllCommand),
     Backup(FileBackupCommand),
-    Show(FileShowCommand),
     ShowAll(FileShowAllCommand),
     Restore(FileRestoreCommand),
     RestoreAll(FileRestoreAllCommand),
@@ -97,12 +97,10 @@ pub struct FileRemoveCommand {
 }
 
 #[derive(Args, Debug, Clone)]
-pub struct FileBackupCommand {}
+pub struct FileRemoveAllCommand {}
 
 #[derive(Args, Debug, Clone)]
-pub struct FileShowCommand {
-    pub file: String,
-}
+pub struct FileBackupCommand {}
 
 #[derive(Args, Debug, Clone)]
 pub struct FileShowAllCommand {}

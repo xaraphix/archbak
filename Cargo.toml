@@ -9,5 +9,8 @@ edition = "2021"
 clap = { version = "4.4.11", features = ["derive"] }
 colored = "2.1.0"
 dirs = "5.0.1"
+file-owner = "0.1.2"
+nix = "0.27.1"
 serde = { version = "1.0.193", features = ["derive"] }
 serde_yaml = "0.9.27"
+shellexpand = "3.1.0"

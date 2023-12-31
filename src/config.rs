@@ -3,7 +3,9 @@ use dirs;
 use std::fs;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-const CONFIG_FILE_PATH: &str = "arch_bak/config.yaml";
+pub const CONFIG_FILE_PATH: &str = "arch_bak/config.yaml";
+pub const CONFIG_DIR_PATH: &str = "arch_bak/";
+pub const CONFIG_DIR_FILES_BACKUP_PATH: &str = "files/root/";
 
 use serde::{Deserialize, Serialize};
 
@@ -35,14 +37,14 @@ pub struct FileConfig {
     pub name: String,
     pub ownership: Ownership,
     pub source_path: String,
-    pub destination_path: String,
+    pub backup_path: String,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct Ownership {
-    pub user: String,
+    pub owner: String,
     pub group: String,
-    pub permissions: String,
+    pub permissions: u32,
 }
 
 pub enum ConfigFileStatus {
@@ -76,6 +78,12 @@ pub fn update_config(config: Config) -> Result<ConfigFileStatus, std::io::Error>
     let config_path = config_dir.join(CONFIG_FILE_PATH);
 
     if config_path.exists() {
+        match fs::remove_file(&config_path) {
+            Ok(_) => {}
+            Err(_) => {
+                println!("Error updating config file");
+            }
+        }
         let config_dir = config_path
             .parent()
             .expect("Failed to get parent directory");
@@ -103,7 +111,7 @@ pub fn get_config() -> Config {
     config
 }
 
-fn create_config_file_if_not_exists() -> Result<ConfigFileStatus, std::io::Error> {
+pub fn create_config_file_if_not_exists() -> Result<ConfigFileStatus, std::io::Error> {
     let config_dir = dirs::config_dir().expect("");
     let config_path = config_dir.join(CONFIG_FILE_PATH);
 
@@ -140,16 +148,28 @@ pub fn backup() -> Result<ConfigFileStatus, std::io::Error> {
                     .unwrap()
                     .as_millis();
                 let new_config_path = format!("{}_{}", config_path.to_string_lossy(), timestamp);
-                fs::rename(&config_path, &new_config_path)?;
+                fs::copy(&config_path, &new_config_path)?;
                 println!("Created a backup");
-                match create_config_file_if_not_exists() {
-                    Ok(ConfigFileStatus::NewCreated) => Ok(ConfigFileStatus::BackedUp),
-                    _ => Ok(ConfigFileStatus::BackupFail),
-                }
+                Ok(ConfigFileStatus::BackedUp)
             } else {
                 Ok(ConfigFileStatus::BackupFail)
             }
         }
         _ => Ok(ConfigFileStatus::BackupFail),
     }
+}
+
+pub fn get_config_dir_path() -> String {
+    let config_dir = dirs::config_dir().expect("");
+    let config_path = config_dir.join(CONFIG_DIR_PATH);
+    format!("{}", config_path.to_string_lossy())
+}
+
+pub fn get_config_files_backup_path() -> String {
+    let config_dir = dirs::config_dir().expect("");
+    let config_path = config_dir.join(format!(
+        "{}{}",
+        CONFIG_DIR_PATH, CONFIG_DIR_FILES_BACKUP_PATH
+    ));
+    format!("{}", config_path.to_string_lossy())
 }

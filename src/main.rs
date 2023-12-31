@@ -5,9 +5,12 @@ mod args;
 mod config;
 mod files;
 mod pacman;
+mod user_and_group;
 
 use args::*;
+
 fn main() {
+    let _ = config::create_config_file_if_not_exists();
     let args = ArchBakArgs::parse();
     match args.entity {
         Entity::Pacman(pacman_cmd) => match pacman_cmd.options {
@@ -16,13 +19,6 @@ fn main() {
                     PackageBackup::Explicit => pacman::backup_explicit(),
                     PackageBackup::Foreign => pacman::backup_foreign(),
                     PackageBackup::All => pacman::backup_all(),
-                },
-            },
-            PacmanCommandOptions::Install(opts) => match opts {
-                PackageInstallCommand { options } => match options {
-                    PackageRestore::Explicit => pacman::install_explicit(),
-                    PackageRestore::Foreign => pacman::install_foreign(),
-                    PackageRestore::All => pacman::install_all(),
                 },
             },
             PacmanCommandOptions::Show(opts) => match opts {
@@ -36,13 +32,17 @@ fn main() {
         Entity::Files(files_cmd) => match files_cmd.options {
             FileCommandOptions::Add(FileAddCommand { file }) => files::add(file.as_str()),
             FileCommandOptions::Remove(FileRemoveCommand { file }) => files::remove(file.as_str()),
-            FileCommandOptions::Show(FileShowCommand { file }) => files::show(file.as_str()),
             FileCommandOptions::ShowAll(_) => files::show_all(),
             FileCommandOptions::RestoreAll(_) => files::restore_all(),
             FileCommandOptions::Backup(_) => files::backup(),
+            FileCommandOptions::RemoveAll(_) => files::remove_all(),
             FileCommandOptions::Restore(FileRestoreCommand { file }) => {
-                files::restore(file.as_str())
+                files::restore_file(file.as_str())
             }
         },
+        Entity::Sync => {
+            pacman::backup_all();
+            files::backup();
+        }
     }
 }
